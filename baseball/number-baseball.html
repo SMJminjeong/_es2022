@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>숫자야구</title>
+</head>
+<body>
+<form id="form">
+  <input type="text" id="input">
+  <button>확인</button>
+</form>
+<div id="logs"></div>
+<script>
+  const $input = document.querySelector('#input');
+  const $form = document.querySelector('#form');
+  const $logs = document.querySelector('#logs');
+
+  // 1. 무작위로 숫자 뽑기 (4개)
+  // Math.random() 의 범위는 0이상 1미만이다. 
+  const numbers = []; // [] : 단순히 값을 모을 때 , {} : 속성 이름을 붙여 값을 구분해야 할 때
+  for (let n = 0; n<9; n += 1){
+    numbers.push(n + 1);
+  }
+
+  const answer = []; // 숫자 4개 뽑아서 answer 배열에 담기
+  for (let n = 0; n<4; n += 1){ 
+    const index = Math.floor(Math.random() * numbers.length); // numbers.length 을 이용해서 undefined 해결
+    answer.push(numbers[index]);
+    numbers.splice(index, 1);
+  }
+  console.log(answer);
+
+  // 3. 입력값 검증하기
+  const tries = [];
+  function checkInput(input){
+    if(input.length !== 4){
+      return alert('숫자 4개를 입력해주세요');
+    }
+    if(new Set(input).size !== 4){ //중복된 숫자가 있는가 new Set = 중복이 없는 배열
+      return alert('중복되지 않게 입력해주세요');
+    }
+    if(tries.includes(input)){
+      return alert('이미 시도한 값입니다');
+    }
+    return true;
+  } // 검사하는 코드
+
+
+  // 2. 답을 제출
+  // form 을 쓸 경우 form 에 addEventListener 를 사용한다.
+  // form > button 을 누르면 submit 이라는 event 발생 (페이지 새로고침)
+  // => 저장되어있는 변수가 날라감
+  // => 막아줘야한다.
+  $form.addEventListener('submit', (event) => {
+    event.preventDefault(); // 기본동작 (페이지 새로고침) 막기
+    const value = $input.value; // = event.target[1].value
+    $input.value = '';
+
+    if(!checkInput(value)){
+      return;
+    }
+    // checkInput(value) 가 true 일 때 (문제없음)
+
+    // 홈런일경우 검사
+    // join 함수 : [3,1,4,6] -> '3146' 
+    // join() 기본값은 join(',')
+    if(answer.join('') === value){ 
+      $logs.textContent = '홈런!';
+      return;
+    }
+    // 10번쨰 시도인지 검사
+    if(tries.length >= 9){ //10번 시도인데 왜 9? tries 안에는 9가 들어있기 때문에 (배열)
+      // const message = document.createTextNode(`패배! 정답은 ${answer.join('')}`);
+      // $logs.appendChild(message);
+      $logs.appendChild(document.createTextNode(`패배! 정답은 ${answer.join('')}`));
+      return;
+    }
+    // 몇스트라이크 몇볼인지 검사
+    let strike = 0;
+    let ball = 0;
+    for(let i = 0; i<answer.length; i++){
+      const index = value.indexOf(answer[i]);
+      if(index > -1){
+        // 숫자 && 자리
+        if(index === i){
+          strike += 1;
+        }
+        // 숫자
+        else{
+          ball += 1;
+        }
+      }
+    }
+
+    tries.push(value);
+  });
+
+
+
+
+</script>
+</body>
+</html>
